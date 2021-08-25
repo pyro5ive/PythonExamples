@@ -1,0 +1,127 @@
+#!/usr/bin/python
+
+import time
+import socket
+import curses.textpad
+import curses
+import random
+
+#################################################################
+def mission_exit():
+ endcurses();
+ print("ByeBye");
+
+ exit();
+################################################################
+
+##################################################################
+### setup_curses()
+##################################################################
+def setup_curses():
+ curses.start_color();
+ stdscr.bkgd(0,curses.color_pair(1));
+ curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLUE);
+ curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK);
+ curses.init_pair(3, curses.COLOR_BLUE, curses.COLOR_GREEN);
+ curses.init_pair(4, curses.COLOR_WHITE, curses.COLOR_BLUE);
+ curses.curs_set(0);
+
+ stdscr.refresh();
+
+ return;
+##################################################################
+
+##################################################################
+def menu_nav_update():
+
+ if menu_nav_hl == 0:
+         launchcontrol_window.addstr(5, 5,  "< Regenerate Password >", curses.A_REVERSE);
+ else:
+         launchcontrol_window.addstr(5, 5,  "< Regenerate Password >", curses.A_BOLD);
+
+ if menu_nav_hl == 1:
+         launchcontrol_window.addstr(5, 40, "< ARM System >  ", curses.A_REVERSE);
+ else:
+         launchcontrol_window.addstr(5, 40, "< ARM System >  ", curses.A_BOLD);
+
+ if menu_nav_hl == 2:
+         launchcontrol_window.addstr(5, 70,  "< Spawn Video Window > ", curses.A_REVERSE)
+ else:
+         launchcontrol_window.addstr(5, 70,  "< Spawn Video Window > ", curses.A_BOLD);
+
+ if menu_nav_hl == 3:
+         launchcontrol_window.addstr(5, 110,  "< Exit > ", curses.A_REVERSE)
+ else:
+         launchcontrol_window.addstr(5, 110,  "< Exit > ", curses.A_BOLD);
+
+ return True;
+###################################################################
+
+
+##################################################################
+def launch_code_generate():
+
+ global launchcontrol_window;
+ code = random.randint(1,99999) * 456321;
+ launchcontrol_window.addstr(2, 5,  "Generated Launch Password: " + str(code), curses.A_BOLD);
+
+ return code;
+##################################################################
+
+##################################################################
+def log_file_setup(id=00000):
+
+ #code passed in is used as ID
+ filename = "mission-" + str(id) + ".log";
+ file = open(filename,"w",0);  ## create the file IO object
+ return file;
+##################################################################
+
+##################################################################
+###  main()
+##################################################################
+def main(stdscr):
+
+# s = socket.socket()         # Create a socket object
+# host = "192.168.0.26"     # Get local machine name
+# port = 12345                # Reserve a port for your service.
+# s.bind((host, port))        # Bind to the port
+# s.listen(5);                 # Now wait for client connection.
+
+ global flight_data_window;
+ global ground_sensor_window;
+ global launchcontrol_window;
+ global messages_window;
+
+ setup_curses();
+ flight_data_window = setup_vehicle_data_window();
+ ground_sensor_window = setup_ground_sensor_window();
+ launchcontrol_window = setup_launchcontrol_window();
+ messages_window = setup_messages_window();
+ launch_code = launch_code_generate();
+ logfile = log_file_setup(launch_code);
+ logfile.write("Mission Control Started at <date> <time>\n");
+ UseDemoData();
+
+ while True:
+        MenuNavigation();
+
+        flight_data_window.refresh();
+        messages_window.refresh();
+        continue;
+
+ return False;
+################################################################################
+
+# start here and follow me up 
+
+#globals
+menu_nav_hl = 0;
+flight_data_window      = 0;
+ground_sensor_window    = 0;
+launchcontrol_window    = 0;
+messages_window         = 0;
+
+stdscr = curses.initscr();
+curses.wrapper(main);
+print("Code exited main()");
